@@ -24,7 +24,6 @@ private:
 	struct _Iterator
 	{
 	private:
-		friend cycle_view;
 		friend _Sentinel;
 		using _Vp_iter = iterator_t<_Vp>;
 
@@ -124,9 +123,37 @@ namespace views {
 	};
 } // namespace views
 
+template <input_range _Vp1, input_range _Vp2>
+class zip_view : public view_interface<zip_view<_Vp1, _Vp2>>
+{
+private:
+	struct _Sentinel;
+
+	struct _Iterator
+	{
+	private:
+		friend zip_view;
+		using _Vp1_iter = iterator_t<_Vp1>;
+		using _Vp2_iter = iterator_t<_Vp2>;
+
+		_Vp1_iter _M_current1 = _Vp1_iter();
+		_Vp2_iter _M_current2 = _Vp2_iter();
+		zip_view* _M_parent = nullptr;
+	public:
+		_Iterator() = default;
+
+		constexpr _Iterator(zip_view& __parent,
+			_Vp1_iter __current1, _Vp2_iter __current2) :
+			_M_current1(std::move(__current1)),
+			_M_current2(std::move(__current2)),
+			_M_parent(std::__addressof(__parent)) {}
+	};
+
+	_Vp1 _M_base1 = _Vp1();
+	_Vp2 _M_base2 = _Vp2();
+};
+
 } // namespace ranges
 } // mamespace std
-
-
 
 #endif /* MORE_RANGES_H_ */
